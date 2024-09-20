@@ -7,6 +7,15 @@ import json
 import re
 import subprocess
 import os
+import argparse
+
+parser = argparse.ArgumentParser(description="the command line options for journal.py")
+parser.add_argument("-q", "--questions", default=False, action='store_true',
+                    help="add questions.txt when creating an entry", )
+parser.add_argument("-nq", "--no-questions", default=False, action='store_true',
+                    help="do not add questions.txt when re-opening created entry")
+
+args = vars(parser.parse_args())
 
 TESTING = False
 wordcount_goal = 750
@@ -40,14 +49,6 @@ def get_ia_writer_style_wordcount_from_file(file_path: str) -> int:
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     return get_ia_writer_style_wordcount_from_string(content)
-
-
-def get_questions_txt(file_path: str) -> str:
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-    content = re.sub(r":\n", ": \n", content, flags=re.MULTILINE)
-    return content
-
 
 ordinal_strings = {
     1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", 6: "6th", 7: "7th", 8: "8th",
@@ -95,17 +96,14 @@ blobby["entry_file_path"] = blobby["path"] + "/" + blobby["title_now"] + ".txt"
 blobby["editor_subprocess"].append(blobby["entry_file_path"])
 
 
-def create_content() -> None:
+def create_morning_content() -> str:
     initial_content = f"""{blobby["title_now"]}\n"""
     initial_content += f"""#MorningPages, started at {blobby["timestamp_hhmm"]}\n"""
     initial_content += "\n\n\n"
     initial_content += "Goal WC: MORNINGWORDCOUNT\n\n"
-    initial_content += get_questions_txt(blobby["questions_file_path"])
-    if is_evening is False or is_late_night is False:
-        initial_content += "\n"
-        initial_content += "#EveningPages, started at EVENINGSTARTTIME"
-        initial_content += "\n\n\n"
-        initial_content += "Goal WC: EVENINGWORDCOUNT"
+    if args["questions"]:
+        initial_content += get_questions_not_in_entry()
+
     blobby["wordcount_current"] = get_ia_writer_style_wordcount_from_string(initial_content)
     blobby["wordcount_current_plus_goal"] = blobby["wordcount_current"] + wordcount_goal
     old_string = "MORNINGWORDCOUNT"
@@ -123,31 +121,68 @@ def open_editor(cmd: list) -> None:
     print(" ".join(cmd[0:-1]) + f" \"{cmd[-1]}\"")
     subprocess.run(cmd, check=False)
 
+def update_entry_with_questions() -> None:
+    if not args["no_questions"]:
+        return
+    content = ""
+    questions = get_questions_not_in_entry()
 
-def update_entry(entry_file_path: str) -> None:
+    with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
+        content = file.read()
+    content += questions
+    with open(blobby["entry_file_path"], "w", encoding="utf-8") as file:
+        file.write(content)
+
+
+def get_questions_not_in_entry() -> str:
+    content = ""
+    question_list = []
+    with open(blobby["questions_file_path"], "r", encoding="utf-8") as file:
+        for line in file:
+            question_list.append(line)
+    if os.path.exists(blobby["entry_file_path"]):
+        with open(blobby["entry_file_path"], "r", encoding='utf-8') as file:
+            for line in file:
+                if ":" in line:
+                    line = line.split(":")[0] + ":\n"
+                if line in question_list:
+                    question_list.remove(line)
+    content = re.sub(r":\n", ": \n", "".join(question_list), flags=re.MULTILINE)
+    return content
+
+
+
+
+def update_evening_timestamp_and_wordcount(entry_file_path: str) -> None:
     if is_evening or is_late_night:
         with open(entry_file_path, 'r', encoding='utf-8') as file:
             content = file.read()
-            current_wc = get_ia_writer_style_wordcount_from_string(content)
-            old_string = "EVENINGWORDCOUNT"
-            new_string = str(current_wc + 750)
-            content = content.replace(old_string, new_string)
-            old_string = "EVENINGSTARTTIME"
-            new_string = blobby["timestamp_hhmm"]
-            content = content.replace(old_string, new_string)
+        content += "\n"
+        content += "#EveningPages, started at EVENINGSTARTTIME"
+        content += "\n\n\n"
+        content += "Goal WC: EVENINGWORDCOUNT"
+        current_wc = get_ia_writer_style_wordcount_from_string(content)
+        old_string = "EVENINGWORDCOUNT"
+        new_string = str(current_wc + 750)
+        content = content.replace(old_string, new_string)
+        old_string = "EVENINGSTARTTIME"
+        new_string = blobby["timestamp_hhmm"]
+        content = content.replace(old_string, new_string)
         with open(entry_file_path, 'w', encoding="utf8") as file:
             file.write(content)
 
 
 if os.path.exists(blobby["entry_file_path"]):
     if is_evening or is_late_night:
-        update_entry(blobby["entry_file_path"])
+        update_evening_timestamp_and_wordcount(blobby["entry_file_path"])
+    update_entry_with_questions()
 else:
-    initial_content = create_content()
+    initial_content = create_morning_content()
     create_entry(blobby["entry_file_path"], initial_content)
 
 
 open_editor(blobby["editor_subprocess"])
+
 
 if TESTING:
     # print(json.dumps(blobby, indent=4, sort_keys=True))
