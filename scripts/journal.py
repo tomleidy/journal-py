@@ -122,11 +122,10 @@ def open_editor(cmd: list) -> None:
     subprocess.run(cmd, check=False)
 
 def update_entry_with_questions() -> None:
-    if not args["no_questions"]:
+    if args["no_questions"]:
         return
     content = ""
     questions = get_questions_not_in_entry()
-
     with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
         content = file.read()
     content += questions
