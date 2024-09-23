@@ -121,14 +121,19 @@ def open_editor(cmd: list) -> None:
     print(" ".join(cmd[0:-1]) + f" \"{cmd[-1]}\"")
     subprocess.run(cmd, check=False)
 
-def update_entry_with_questions() -> None:
+
+def update_entry_with_new_content(new_content, expected_ending, exclusion_re) -> None:
     if args["no_questions"]:
         return
     content = ""
-    questions = get_questions_not_in_entry()
     with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
         content = file.read()
-    content += questions
+    print(exclusion_re, re.search(exclusion_re, content, flags=re.MULTILINE))
+    if re.search(exclusion_re, content, flags=re.MULTILINE):
+        return
+    if not content.endswith("\n\n"):
+        content += expected_ending
+    content += new_content
     with open(blobby["entry_file_path"], "w", encoding="utf-8") as file:
         file.write(content)
 
@@ -150,29 +155,21 @@ def get_questions_not_in_entry() -> str:
     return content
 
 
-
-
-def update_evening_timestamp_and_wordcount(entry_file_path: str) -> None:
-    if is_evening or is_late_night:
-        with open(entry_file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-        content += "\n"
-        content += "#EveningPages, started at EVENINGSTARTTIME"
-        content += "\n\n\n"
-        content += "Goal WC: EVENINGWORDCOUNT"
-        current_wc = get_ia_writer_style_wordcount_from_string(content)
-        old_string = "EVENINGWORDCOUNT"
-        new_string = str(current_wc + 750)
-        content = content.replace(old_string, new_string)
-        old_string = "EVENINGSTARTTIME"
-        new_string = blobby["timestamp_hhmm"]
-        content = content.replace(old_string, new_string)
-        with open(entry_file_path, 'w', encoding="utf8") as file:
-            file.write(content)
+def get_evening_update_string() -> str:
+    content = "\n#EveningPages, started at EVENINGSTARTTIME\n\n\nGoal WC: EVENINGWORDCOUNT"
+    current_wc = get_ia_writer_style_wordcount_from_string(content)
+    old_string = "EVENINGWORDCOUNT"
+    new_string = str(current_wc + 750)
+    content = content.replace(old_string, new_string)
+    old_string = "EVENINGSTARTTIME"
+    new_string = blobby["timestamp_hhmm"]
+    content = content.replace(old_string, new_string)
+    return content
 
 
 if os.path.exists(blobby["entry_file_path"]):
     if is_evening or is_late_night:
+        update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
         update_evening_timestamp_and_wordcount(blobby["entry_file_path"])
     update_entry_with_questions()
 else:
