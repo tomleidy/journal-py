@@ -1,9 +1,9 @@
 """Entry point for journal templating script"""
 # pylint: disable=C0116,C0103,W0621
 
+
 from datetime import datetime, timedelta
 import platform
-import json
 import re
 import subprocess
 import os
@@ -73,6 +73,7 @@ def get_ia_writer_style_wordcount_from_file(file_path: str) -> int:
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     return get_ia_writer_style_wordcount_from_string(content)
+
 
 ordinal_strings = {
     1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", 6: "6th", 7: "7th", 8: "8th",
