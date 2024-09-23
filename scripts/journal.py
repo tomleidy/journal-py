@@ -15,7 +15,31 @@ parser.add_argument("-q", "--questions", default=False, action='store_true',
 parser.add_argument("-nq", "--no-questions", default=False, action='store_true',
                     help="do not add questions.txt when re-opening created entry")
 
+parser.add_argument("-t", "--tarot", default=False, action='store_true',
+                    help="pull a tarot card and insert it into the entry")
+
 args = vars(parser.parse_args())
+if args['tarot']:
+    import pandas as pd
+    import random
+    tarot_csv_file = "~/.dot/personal/mots.csv"
+
+
+def pull_tarot_card() -> str:
+    df = pd.read_csv(tarot_csv_file, sep=",")
+    card = random.choice(df['Card'])
+    row = df[df['Card'] == card]
+    row = row.squeeze()
+    result = "Tarot: "
+    skip = set({'Group'})
+    for column, value in row.items():
+        if not isinstance(value, str) or column in skip:
+            continue
+        if len(value) > 30 or value == "-":
+            continue
+        result += f"{value}, "
+    return result[:-2]
+
 
 TESTING = False
 wordcount_goal = 750
@@ -109,6 +133,8 @@ def create_morning_content() -> str:
     old_string = "MORNINGWORDCOUNT"
     new_string = str(blobby["wordcount_current_plus_goal"])
     initial_content = initial_content.replace(old_string, new_string)
+    if args['tarot']:
+        initial_content += "\n" + pull_tarot_card
     return initial_content
 
 
@@ -170,8 +196,8 @@ def get_evening_update_string() -> str:
 if os.path.exists(blobby["entry_file_path"]):
     if is_evening or is_late_night:
         update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
-        update_evening_timestamp_and_wordcount(blobby["entry_file_path"])
-    update_entry_with_questions()
+    if args['tarot']:
+        update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
 else:
     initial_content = create_morning_content()
     create_entry(blobby["entry_file_path"], initial_content)
