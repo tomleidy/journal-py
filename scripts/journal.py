@@ -155,7 +155,6 @@ def update_entry_with_new_content(new_content, expected_ending, exclusion_re) ->
     content = ""
     with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
         content = file.read()
-    print(exclusion_re, re.search(exclusion_re, content, flags=re.MULTILINE))
     if re.search(exclusion_re, content, flags=re.MULTILINE):
         return
     if not content.endswith("\n\n"):
@@ -208,7 +207,8 @@ open_editor(blobby["editor_subprocess"])
 
 
 if TESTING:
-    # print(json.dumps(blobby, indent=4, sort_keys=True))
+    import json
+    print(json.dumps(blobby, indent=4, sort_keys=True))
     print("safe to delete file? if not, hit ctrl-C")
     input()
     print("removing " + blobby["entry_file_path"])
