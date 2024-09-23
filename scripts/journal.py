@@ -138,8 +138,8 @@ def create_morning_content() -> str:
     return initial_content
 
 
-def create_entry(entry_file_path: str, content: str) -> None:
-    with open(entry_file_path, 'w', encoding='utf-8') as file:
+def create_entry(content: str) -> None:
+    with open(blobby['entry_file_path'], 'w', encoding='utf-8') as file:
         file.write(content)
 
 
@@ -200,7 +200,7 @@ if os.path.exists(blobby["entry_file_path"]):
         update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
 else:
     initial_content = create_morning_content()
-    create_entry(blobby["entry_file_path"], initial_content)
+    create_entry(initial_content)
 
 
 open_editor(blobby["editor_subprocess"])
