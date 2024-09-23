@@ -33,7 +33,7 @@ def pull_tarot_card() -> str:
     for column, value in row.items():
         if not isinstance(value, str) or column in skip:
             continue
-        if len(value) > 30 or value == "-":
+        if len(value) > 30 or value == "-" or value[-1] == ".":
             continue
         result += f"{value}, "
     return result[:-2]
