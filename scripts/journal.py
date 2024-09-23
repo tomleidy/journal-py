@@ -145,13 +145,13 @@ def open_editor(cmd: list) -> None:
     subprocess.run(cmd, check=False)
 
 
-def update_entry_with_new_content(new_content, expected_ending, exclusion_re) -> None:
+def update_entry_with_new_content(new_content, expected_ending, exclusion_re=None) -> None:
     if args["no_questions"]:
         return
     content = ""
     with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
         content = file.read()
-    if re.search(exclusion_re, content, flags=re.MULTILINE):
+    if exclusion_re and re.search(exclusion_re, content, flags=re.MULTILINE):
         return
     if not content.endswith("\n\n"):
         content += expected_ending
@@ -190,6 +190,8 @@ if os.path.exists(blobby["entry_file_path"]):
         update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
     if args['tarot']:
         update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
+    if not args['no_questions']:
+        update_entry_with_new_content(get_questions_not_in_entry(), "\n")
 else:
     initial_content = create_morning_content()
     create_entry(initial_content)
