@@ -29,7 +29,7 @@ def pull_tarot_card() -> str:
     row = df[df['Card'] == card]
     row = row.squeeze()
     result = "Tarot: "
-    skip = set({'Group'})
+    skip = set({'Group','Up','Across','Down'})
     for column, value in row.items():
         if not isinstance(value, str) or column in skip:
             continue
