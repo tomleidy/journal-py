@@ -18,13 +18,13 @@ parser.add_argument("-t", "--tarot", default=False, action='store_true',
 
 args = vars(parser.parse_args())
 if args['tarot']:
-    import pandas as pd
+    from pandas import read_csv
     import random
     tarot_csv_file = "~/.dot/personal/mots.csv"
 
 
 def pull_tarot_card() -> str:
-    df = pd.read_csv(tarot_csv_file, sep=",")
+    df = read_csv(tarot_csv_file, sep=",")
     card = random.choice(df['Card'])
     row = df[df['Card'] == card]
     row = row.squeeze()
