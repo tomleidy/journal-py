@@ -36,7 +36,7 @@ def pull_tarot_card() -> str:
         if len(value) > 30 or value == "-" or value[-1] == ".":
             continue
         result += f"{value}, "
-    return result[:-2]
+    return result[:-2] + "\n"
 
 
 TESTING = False
