@@ -66,8 +66,9 @@ def get_ia_writer_style_wordcount_from_string(content: str) -> int:
     return len(content.split())
 
 
-def get_ia_writer_style_wordcount_from_file(file_path: str) -> int:
+def get_ia_writer_style_wordcount_from_entry() -> int:
     """Determine word count, approximating macOS iA Writer word count"""
+    file_path = blobby["entry_file_path"]
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     return get_ia_writer_style_wordcount_from_string(content)
@@ -180,6 +181,7 @@ def get_questions_not_in_entry() -> str:
 def get_evening_update_string() -> str:
     content = f"\n#EveningPages, started at {blobby['timestamp_hhmm']}\n\n\n\n"
     current_wc = get_ia_writer_style_wordcount_from_string(content)
+    current_wc += get_ia_writer_style_wordcount_from_entry()
     goal_wordcount = str(current_wc + 750 + 3)
     content += f"Goal WC: {goal_wordcount}"
     return content
