@@ -130,9 +130,7 @@ def create_morning_content() -> str:
         initial_content += get_questions_not_in_entry()
     current_wc = get_ia_writer_style_wordcount_from_string(initial_content)
     goal_wc = current_wc + global_wordcount_goal
-    old_string = "MORNINGWORDCOUNT"
-    new_string = str(goal_wc)
-    initial_content = initial_content.replace(old_string, new_string)
+    initial_content = initial_content.replace("MORNINGWORDCOUNT", str(goal_wc))
     return initial_content
 
 
@@ -186,21 +184,21 @@ def get_evening_update_string() -> str:
     content += f"Goal WC: {goal_wordcount}"
     return content
 
+def main() -> None:
+    if os.path.exists(blobby["entry_file_path"]):
+        if is_evening or is_late_night:
+            update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
+        if args['tarot']:
+            update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
+        if not args['no_questions']:
+            update_entry_with_new_content(get_questions_not_in_entry(), "\n")
+    else:
+        initial_content = create_morning_content()
+        create_entry(initial_content)
+    open_editor(blobby["editor_subprocess"])
 
-if os.path.exists(blobby["entry_file_path"]):
-    if is_evening or is_late_night:
-        update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
-    if args['tarot']:
-        update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
-    if not args['no_questions']:
-        update_entry_with_new_content(get_questions_not_in_entry(), "\n")
-else:
-    initial_content = create_morning_content()
-    create_entry(initial_content)
 
-
-open_editor(blobby["editor_subprocess"])
-
+main()
 
 if TESTING:
     import json
