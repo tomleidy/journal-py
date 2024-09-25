@@ -124,9 +124,9 @@ blobby["editor_subprocess"].append(blobby["entry_file_path"])
 def create_morning_content() -> str:
     initial_content = f"""{blobby["title_now"]}\n"""
     initial_content += f"""#MorningPages, started at {blobby["timestamp_hhmm"]}\n"""
-    initial_content += "\n\n\nGoal WC: MORNINGWORDCOUNT\n\n"
+    initial_content += "\n\n\nGoal WC: MORNINGWORDCOUNT\n"
     if args['tarot']:
-        initial_content += f"\n{pull_tarot_card()}\n"
+        initial_content += f"{pull_tarot_card()}\n"
     if args["questions"]:
         initial_content += get_questions_not_in_entry()
     current_wc = get_ia_writer_style_wordcount_from_string(initial_content)
