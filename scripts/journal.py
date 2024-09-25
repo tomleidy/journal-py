@@ -15,13 +15,14 @@ parser.add_argument("-nq", "--no-questions", default=False, action='store_true',
                     help="do not add questions.txt when re-opening created entry")
 parser.add_argument("-t", "--tarot", default=False, action='store_true',
                     help="pull a tarot card and insert it into the entry")
+parser.add_argument("-T", "--test", default=False, action='store_true')
 
 args = vars(parser.parse_args())
+
 if args['tarot']:
     from pandas import read_csv
     import random
     tarot_csv_file = "~/.dot/personal/mots.csv"
-
 
 def pull_tarot_card() -> str:
     df = read_csv(tarot_csv_file, sep=",")
@@ -39,7 +40,7 @@ def pull_tarot_card() -> str:
     return result[:-2] + "\n"
 
 
-TESTING = False
+
 global_wordcount_goal = 750
 current_hour = int(datetime.now().strftime("%H"))
 morning_start_hour = 4
@@ -114,7 +115,7 @@ else:
     raise ValueError("This script only meant for macOS (Darwin) and Windows at this time")
 
 blobby["questions_file_path"] = blobby["path"] + "/" + questions_txt
-if TESTING:
+if args['test']:
     blobby["path"] = os.path.expanduser("~")
 blobby["entry_file_path"] = blobby["path"] + "/" + blobby["title_now"] + ".txt"
 blobby["editor_subprocess"].append(blobby["entry_file_path"])
@@ -200,7 +201,7 @@ def main() -> None:
 
 main()
 
-if TESTING:
+if args['test']:
     import json
     print(json.dumps(blobby, indent=4, sort_keys=True))
     print("safe to delete file? if not, hit ctrl-C")
