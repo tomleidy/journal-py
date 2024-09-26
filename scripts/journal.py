@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import platform
 import re
 import subprocess
-import os
+from os import path, remove
 import argparse
 
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
@@ -24,13 +24,14 @@ if args['tarot']:
     import random
     tarot_csv_file = "~/.dot/personal/mots.csv"
 
+
 def pull_tarot_card() -> str:
     df = read_csv(tarot_csv_file, sep=",")
     card = random.choice(df['Card'])
     row = df[df['Card'] == card]
     row = row.squeeze()
     result = "Tarot: "
-    skip = set({'Group','Up','Across','Down'})
+    skip = set({'Group', 'Up', 'Across', 'Down'})
     for column, value in row.items():
         if not isinstance(value, str) or column in skip:
             continue
@@ -38,7 +39,6 @@ def pull_tarot_card() -> str:
             continue
         result += f"{value}, "
     return result[:-2] + "\n"
-
 
 
 global_wordcount_goal = 750
@@ -106,17 +106,17 @@ else:
 cur_os = platform.system()
 if cur_os == "Darwin":
     path_string = "~/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/Morning Pages"
-    blobby["path"] = os.path.expanduser(path_string)
+    blobby["path"] = path.expanduser(path_string)
     blobby["editor_subprocess"] = ["open", "-a", "iA Writer"]
 elif cur_os == "Windows":
-    blobby["path"] = os.path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
+    blobby["path"] = path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
     blobby["editor_subprocess"] = [r"C:\Program Files\iA Writer\iAWriter.exe"]
 else:
     raise ValueError("This script only meant for macOS (Darwin) and Windows at this time")
 
 blobby["questions_file_path"] = blobby["path"] + "/" + questions_txt
 if args['test']:
-    blobby["path"] = os.path.expanduser("~")
+    blobby["path"] = path.expanduser("~")
 blobby["entry_file_path"] = blobby["path"] + "/" + blobby["title_now"] + ".txt"
 blobby["editor_subprocess"].append(blobby["entry_file_path"])
 
@@ -166,7 +166,7 @@ def get_questions_not_in_entry() -> str:
     with open(blobby["questions_file_path"], "r", encoding="utf-8") as file:
         for line in file:
             question_list.append(line)
-    if os.path.exists(blobby["entry_file_path"]):
+    if path.exists(blobby["entry_file_path"]):
         with open(blobby["entry_file_path"], "r", encoding='utf-8') as file:
             for line in file:
                 if ":" in line:
@@ -185,8 +185,9 @@ def get_evening_update_string() -> str:
     content += f"Goal WC: {goal_wordcount}"
     return content
 
+
 def main() -> None:
-    if os.path.exists(blobby["entry_file_path"]):
+    if path.exists(blobby["entry_file_path"]):
         if is_evening or is_late_night:
             update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
         if args['tarot']:
@@ -207,4 +208,4 @@ if args['test']:
     print("safe to delete file? if not, hit ctrl-C")
     input()
     print("removing " + blobby["entry_file_path"])
-    os.remove(blobby["entry_file_path"])
+    remove(blobby["entry_file_path"])
