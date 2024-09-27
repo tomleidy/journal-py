@@ -84,11 +84,11 @@ ordinal_strings = {
 }
 
 
-blobby = {}
+journal_info = {}
 if is_late_night:
-    blobby["timestamp_hhmm"] = str(2400 + int(datetime.now().strftime("%H%M")))
+    journal_info["timestamp_hhmm"] = str(2400 + int(datetime.now().strftime("%H%M")))
 else:
-    blobby["timestamp_hhmm"] = datetime.now().strftime("%H%M")
+    journal_info["timestamp_hhmm"] = datetime.now().strftime("%H%M")
 
 
 def generate_title(base_date: datetime) -> str:
@@ -97,33 +97,33 @@ def generate_title(base_date: datetime) -> str:
 
 
 if is_late_night:
-    blobby["title_now"] = generate_title(datetime.now() - timedelta(days=1))
-    blobby["title_now_8_weeks_ago"] = generate_title(datetime.now() - timedelta(weeks=8, days=1))
+    journal_info["title_now"] = generate_title(datetime.now() - timedelta(days=1))
+    journal_info["title_now_8_weeks_ago"] = generate_title(datetime.now() - timedelta(weeks=8, days=1))
 else:
-    blobby["title_now"] = generate_title(datetime.now())
-    blobby["title_now_8_weeks_ago"] = generate_title(datetime.now() - - timedelta(weeks=8))
+    journal_info["title_now"] = generate_title(datetime.now())
+    journal_info["title_now_8_weeks_ago"] = generate_title(datetime.now() - - timedelta(weeks=8))
 
 cur_os = platform.system()
 if cur_os == "Darwin":
     path_string = "~/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/Morning Pages"
-    blobby["path"] = path.expanduser(path_string)
-    blobby["editor_subprocess"] = ["open", "-a", "iA Writer"]
+    journal_info["path"] = path.expanduser(path_string)
+    journal_info["editor_subprocess"] = ["open", "-a", "iA Writer"]
 elif cur_os == "Windows":
-    blobby["path"] = path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
-    blobby["editor_subprocess"] = [r"C:\Program Files\iA Writer\iAWriter.exe"]
+    journal_info["path"] = path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
+    journal_info["editor_subprocess"] = [r"C:\Program Files\iA Writer\iAWriter.exe"]
 else:
     raise ValueError("This script only meant for macOS (Darwin) and Windows at this time")
 
-blobby["questions_file_path"] = blobby["path"] + "/" + questions_txt
+journal_info["questions_file_path"] = journal_info["path"] + "/" + questions_txt
 if args['test']:
-    blobby["path"] = path.expanduser("~")
-blobby["entry_file_path"] = blobby["path"] + "/" + blobby["title_now"] + ".txt"
-blobby["editor_subprocess"].append(blobby["entry_file_path"])
+    journal_info["path"] = path.expanduser("~")
+journal_info["entry_file_path"] = journal_info["path"] + "/" + journal_info["title_now"] + ".txt"
+journal_info["editor_subprocess"].append(journal_info["entry_file_path"])
 
 
 def create_morning_content() -> str:
-    initial_content = f"""{blobby["title_now"]}\n"""
-    initial_content += f"""#MorningPages, started at {blobby["timestamp_hhmm"]}\n"""
+    initial_content = f"""{journal_info["title_now"]}\n"""
+    initial_content += f"""#MorningPages, started at {journal_info["timestamp_hhmm"]}\n"""
     initial_content += "\n\n\nGoal WC: MORNINGWORDCOUNT\n"
     if args['tarot']:
         initial_content += f"{pull_tarot_card()}\n"
@@ -136,7 +136,7 @@ def create_morning_content() -> str:
 
 
 def create_entry(content: str) -> None:
-    with open(blobby['entry_file_path'], 'w', encoding='utf-8') as file:
+    with open(journal_info['entry_file_path'], 'w', encoding='utf-8') as file:
         file.write(content)
 
 
@@ -147,25 +147,25 @@ def open_editor(cmd: list) -> None:
 
 def update_entry_with_new_content(new_content, expected_ending, exclusion_re=None) -> None:
     content = ""
-    with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
+    with open(journal_info["entry_file_path"], "r", encoding="utf-8") as file:
         content = file.read()
     if exclusion_re and re.search(exclusion_re, content, flags=re.MULTILINE):
         return
     if not content.endswith("\n\n"):
         content += expected_ending
     content += new_content
-    with open(blobby["entry_file_path"], "w", encoding="utf-8") as file:
+    with open(journal_info["entry_file_path"], "w", encoding="utf-8") as file:
         file.write(content)
 
 
 def get_questions_not_in_entry() -> str:
     content = ""
     question_list = []
-    with open(blobby["questions_file_path"], "r", encoding="utf-8") as file:
+    with open(journal_info["questions_file_path"], "r", encoding="utf-8") as file:
         for line in file:
             question_list.append(line)
-    if path.exists(blobby["entry_file_path"]):
-        with open(blobby["entry_file_path"], "r", encoding='utf-8') as file:
+    if path.exists(journal_info["entry_file_path"]):
+        with open(journal_info["entry_file_path"], "r", encoding='utf-8') as file:
             for line in file:
                 if ":" in line:
                     line = line.split(":")[0] + ":\n"
@@ -176,7 +176,7 @@ def get_questions_not_in_entry() -> str:
 
 
 def get_evening_update_string() -> str:
-    content = f"\n#EveningPages, started at {blobby['timestamp_hhmm']}\n\n\n\n"
+    content = f"\n#EveningPages, started at {journal_info['timestamp_hhmm']}\n\n\n\n"
     current_wc = get_ia_writer_style_wordcount_from_string(content)
     current_wc += get_ia_writer_style_wordcount_from_entry()
     goal_wordcount = str(current_wc + 750 + 3)
@@ -185,25 +185,25 @@ def get_evening_update_string() -> str:
 
 
 def main() -> None:
-    if path.exists(blobby["entry_file_path"]):
+    if path.exists(journal_info["entry_file_path"]):
         if is_evening or is_late_night:
             update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
         if args['tarot']:
             update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
-        if not args['no_questions']:
+        if args['questions'] and not args['no_questions']:
             update_entry_with_new_content(get_questions_not_in_entry(), "\n")
     else:
         initial_content = create_morning_content()
         create_entry(initial_content)
-    open_editor(blobby["editor_subprocess"])
+    open_editor(journal_info["editor_subprocess"])
 
 
 main()
 
 if args['test']:
     import json
-    print(json.dumps(blobby, indent=4, sort_keys=True))
+    print(json.dumps(journal_info, indent=4, sort_keys=True))
     print("safe to delete file? if not, hit ctrl-C")
     input()
-    print("removing " + blobby["entry_file_path"])
-    remove(blobby["entry_file_path"])
+    print("removing " + journal_info["entry_file_path"])
+    remove(journal_info["entry_file_path"])
