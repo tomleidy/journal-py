@@ -11,18 +11,22 @@ import argparse
 from pandas import read_csv, to_datetime
 
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
+parser.add_argument("-a", "--all", default=False, action='store_true',
+                    help="add everything (equivalent: -qts)")
 parser.add_argument("-q", "--questions", default=False, action='store_true',
                     help="add questions.txt when creating an entry", )
-parser.add_argument("-nq", "--no-questions", default=False, action='store_true',
-                    help="do not add questions.txt when re-opening created entry")
 parser.add_argument("-t", "--tarot", default=False, action='store_true',
                     help="pull a tarot card and insert it into the entry")
-parser.add_argument("-T", "--test", default=False, action='store_true')
 parser.add_argument("-s", "--stoic-prompt", default=False, action='store_true',
                     help="add prompts from stoic CSV file")
+parser.add_argument("-T", "--test", default=False, action='store_true')
 
 args = vars(parser.parse_args())
 
+if args['all']:
+    args['questions'] = True
+    args['tarot'] = True
+    args['stoic_prompt'] = True
 
 STOIC_CSV = path.expanduser('~/.dot/reference/stoics.csv')
 STOIC_PROGRESS = path.expanduser('~/.dot/reference/stoic_progress.json')
