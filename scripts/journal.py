@@ -146,8 +146,6 @@ def open_editor(cmd: list) -> None:
 
 
 def update_entry_with_new_content(new_content, expected_ending, exclusion_re=None) -> None:
-    if args["no_questions"]:
-        return
     content = ""
     with open(blobby["entry_file_path"], "r", encoding="utf-8") as file:
         content = file.read()
