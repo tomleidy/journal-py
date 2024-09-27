@@ -5,8 +5,10 @@ from datetime import datetime, timedelta
 import platform
 import re
 import subprocess
+import json
 from os import path, remove
 import argparse
+from pandas import read_csv, to_datetime
 
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
 parser.add_argument("-q", "--questions", default=False, action='store_true',
@@ -16,11 +18,70 @@ parser.add_argument("-nq", "--no-questions", default=False, action='store_true',
 parser.add_argument("-t", "--tarot", default=False, action='store_true',
                     help="pull a tarot card and insert it into the entry")
 parser.add_argument("-T", "--test", default=False, action='store_true')
+parser.add_argument("-s", "--stoic-prompt", default=False, action='store_true',
+                    help="add prompts from stoic CSV file")
 
 args = vars(parser.parse_args())
 
+
+STOIC_CSV = path.expanduser('~/.dot/reference/stoics.csv')
+STOIC_PROGRESS = path.expanduser('~/.dot/reference/stoic_progress.json')
+STOIC_CATCHUP_RATE = 2
+
+
+def stoic_json_get_progress() -> int:
+    """ Read progress from JSON file or start from beginning if not found. """
+    try:
+        with open(STOIC_PROGRESS, 'r', encoding='utf-8') as file:
+            progress = json.load(file)
+            date = datetime.strptime(progress['updated_on'], '%Y-%m-%d')
+            return {"day": progress['day'], "updated_on": date}
+    except (FileNotFoundError, KeyError):
+        return {"day": 1, "updated_on": datetime(2024, 1, 1)}
+
+
+def stoic_json_set_progress(progress: dict) -> None:
+    """ Save progress if applicable """
+    if datetime.now().date() == progress['updated_on'].date():
+        new_progress = {
+            "day": progress['day'],
+            "updated_on": datetime.now().strftime('%Y-%m-%d')
+        }
+        with open(STOIC_PROGRESS, 'w', encoding='utf-8') as file:
+            json.dump(new_progress, file)
+
+
+def get_stoic_entries() -> str:
+    """Return the relevant entry from stoics.csv"""
+    progress = stoic_json_get_progress()
+    current_day = datetime.now().timetuple().tm_yday
+
+    df = read_csv(STOIC_CSV)
+    df['Date'] = to_datetime(df['Date'], format='%m/%d', errors='coerce')
+    num_entries_to_load = 1
+    if progress['day'] < current_day:
+        num_entries_to_load = STOIC_CATCHUP_RATE
+
+    result = "\n"
+    for x in range(num_entries_to_load):
+        day = progress['day'] + x
+        entry = {}
+        if any(df['Day'] == day):
+            entry['date'] = df.loc[df['Day'] == day, 'Date'].iloc[0]
+            # if not isnull(df.loc[df['Day'] == day, 'Date']).iloc[0] else ""
+            entry['text'] = df.loc[df['Day'] == day, 'Question'].iloc[0]
+        else:
+            entry['date'] = ""
+            entry['text'] = f"No entry for day {day}."
+        result += f"- Daily Stoic Prompt, {entry['date'].strftime('%-m/%d')}:\n{entry['text']}\n"
+        result += "\t- Morning:\n\t\t- \n\t- Evening:\n\t\t- \n"
+    progress['day'] += num_entries_to_load
+    stoic_json_set_progress(progress)
+    return result
+
+
 if args['tarot']:
-    from pandas import read_csv
+
     import random
     tarot_csv_file = "~/.dot/personal/mots.csv"
 
@@ -69,7 +130,7 @@ def get_ia_writer_style_wordcount_from_string(content: str) -> int:
 
 def get_ia_writer_style_wordcount_from_entry() -> int:
     """Determine word count, approximating macOS iA Writer word count"""
-    file_path = blobby["entry_file_path"]
+    file_path = journal_info["entry_file_path"]
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     return get_ia_writer_style_wordcount_from_string(content)
@@ -129,6 +190,8 @@ def create_morning_content() -> str:
         initial_content += f"{pull_tarot_card()}\n"
     if args["questions"]:
         initial_content += get_questions_not_in_entry()
+    if args['stoic_prompt']:
+        initial_content += get_stoic_entries()
     current_wc = get_ia_writer_style_wordcount_from_string(initial_content)
     goal_wc = current_wc + global_wordcount_goal
     initial_content = initial_content.replace("MORNINGWORDCOUNT", str(goal_wc))
@@ -192,6 +255,8 @@ def main() -> None:
             update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
         if args['questions'] and not args['no_questions']:
             update_entry_with_new_content(get_questions_not_in_entry(), "\n")
+        if args['stoic_prompt']:
+            update_entry_with_new_content(get_stoic_entries(), "\n", r"^- Daily Stoic Prompt,.*")
     else:
         initial_content = create_morning_content()
         create_entry(initial_content)
@@ -201,7 +266,6 @@ def main() -> None:
 main()
 
 if args['test']:
-    import json
     print(json.dumps(journal_info, indent=4, sort_keys=True))
     print("safe to delete file? if not, hit ctrl-C")
     input()
