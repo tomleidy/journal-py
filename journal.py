@@ -6,7 +6,7 @@ import platform
 import re
 import subprocess
 import json
-from os import path, remove
+from os import path  # , remove
 import argparse
 from pandas import read_csv, to_datetime
 
@@ -61,6 +61,9 @@ def stoic_json_set_progress(progress: dict) -> None:
             "day": progress['day'],
             "updated_on": datetime.now().strftime('%Y-%m-%d')
         }
+        if args['test']:
+            print("json.dump:", new_progress)
+            return
         with open(STOIC_PROGRESS, 'w', encoding='utf-8') as file:
             json.dump(new_progress, file)
 
@@ -213,6 +216,9 @@ def create_morning_content() -> str:
 
 
 def create_entry(content: str) -> None:
+    if args['test']:
+        print(content)
+        return
     with open(journal_info['entry_file_path'], 'w', encoding='utf-8') as file:
         file.write(content)
 
@@ -231,6 +237,9 @@ def update_entry_with_new_content(new_content, expected_ending, exclusion_re=Non
     if not content.endswith("\n\n"):
         content += expected_ending
     content += new_content
+    if args['test']:
+        print(content)
+        return
     with open(journal_info["entry_file_path"], "w", encoding="utf-8") as file:
         file.write(content)
 
@@ -274,7 +283,8 @@ def main() -> None:
     else:
         initial_content = create_morning_content()
         create_entry(initial_content)
-    open_editor(journal_info["editor_subprocess"])
+    if not args['test']:
+        open_editor(journal_info["editor_subprocess"])
 
 
 main()
@@ -283,5 +293,5 @@ if args['test']:
     print(json.dumps(journal_info, indent=4, sort_keys=True))
     print("safe to delete file? if not, hit ctrl-C")
     input()
-    print("removing " + journal_info["entry_file_path"])
-    remove(journal_info["entry_file_path"])
+    # print("removing " + journal_info["entry_file_path"])
+    # remove(journal_info["entry_file_path"])
