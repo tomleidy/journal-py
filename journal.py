@@ -176,7 +176,8 @@ def generate_title(base_date: datetime) -> str:
 
 if is_late_night:
     journal_info["title_now"] = generate_title(datetime.now() - timedelta(days=1))
-    journal_info["title_now_8_weeks_ago"] = generate_title(datetime.now() - timedelta(weeks=8, days=1))
+    weeks_ago_string = generate_title(datetime.now() - timedelta(weeks=8, days=1))
+    journal_info["title_now_8_weeks_ago"] = weeks_ago_string
 else:
     journal_info["title_now"] = generate_title(datetime.now())
     journal_info["title_now_8_weeks_ago"] = generate_title(datetime.now() - - timedelta(weeks=8))
