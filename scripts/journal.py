@@ -49,7 +49,7 @@ def stoic_json_get_progress() -> int:
 
 def stoic_json_set_progress(progress: dict) -> None:
     """ Save progress if applicable """
-    if datetime.now().date() == progress['updated_on'].date():
+    if datetime.now().date() != progress['updated_on'].date():
         new_progress = {
             "day": progress['day'],
             "updated_on": datetime.now().strftime('%Y-%m-%d')
