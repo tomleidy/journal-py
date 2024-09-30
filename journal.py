@@ -10,6 +10,17 @@ from os import path, remove
 import argparse
 from pandas import read_csv, to_datetime
 
+
+script_dir = path.dirname(path.abspath(__file__))
+reference_dir = "examples/"
+stoics_file = "stoics.csv"
+stoices_progress_file = "stoic_progress.json"
+STOIC_CSV = path.join(script_dir, reference_dir + stoics_file)
+STOIC_PROGRESS = path.join(script_dir, reference_dir + stoices_progress_file)
+STOIC_CATCHUP_RATE = 2
+print(STOIC_CSV, STOIC_PROGRESS)
+
+
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
 parser.add_argument("-a", "--all", default=False, action='store_true',
                     help="add everything (equivalent: -qts)")
@@ -30,10 +41,6 @@ if args['all']:
     args['questions'] = True
     args['tarot'] = True
     args['stoic_prompt'] = True
-
-STOIC_CSV = path.expanduser('~/.dot/reference/stoics.csv')
-STOIC_PROGRESS = path.expanduser('~/.dot/reference/stoic_progress.json')
-STOIC_CATCHUP_RATE = 2
 
 
 def stoic_json_get_progress() -> int:
