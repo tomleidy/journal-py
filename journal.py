@@ -185,7 +185,7 @@ cur_os = platform.system()
 if cur_os == "Darwin":
     path_string = "~/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/Morning Pages"
     journal_info['path'] = path.expanduser(path_string)
-    journal_info['editor_subprocess'] = ['open", "-a", "iA Writer']
+    journal_info['editor_subprocess'] = ["open", "-a", "iA Writer"]
 elif cur_os == "Windows":
     journal_info['path'] = path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
     journal_info['editor_subprocess'] = [r'C:\Program Files\iA Writer\iAWriter.exe']
