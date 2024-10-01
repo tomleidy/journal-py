@@ -24,7 +24,8 @@ STOIC_CSV = path.join(script_dir, reference_dir + stoics_file)
 STOIC_PROGRESS = path.join(script_dir, reference_dir + stoices_progress_file)
 STOIC_CATCHUP_RATE = 2
 print(STOIC_CSV, STOIC_PROGRESS)
-
+questions_file = "questions.txt"
+QUESTIONS_TXT = path.join(script_dir, reference_dir + questions_file)
 
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
 parser.add_argument("-a", "--all", default=False, action='store_true',
@@ -122,7 +123,7 @@ current_hour = int(datetime.now().strftime("%H"))
 morning_start_hour = 4
 afternoon_start_hour = 12
 evening_start_hour = 18
-questions_txt = "questions.txt"
+
 
 is_late_night = current_hour < morning_start_hour
 is_morning = morning_start_hour < current_hour < afternoon_start_hour
@@ -191,7 +192,7 @@ elif cur_os == "Windows":
 else:
     raise ValueError("This script only meant for macOS (Darwin) and Windows at this time")
 
-journal_info["questions_file_path"] = journal_info["path"] + "/" + questions_txt
+
 if args['test']:
     journal_info["path"] = path.expanduser("~")
 journal_info["entry_file_path"] = journal_info["path"] + "/" + journal_info["title_now"] + ".txt"
@@ -246,7 +247,7 @@ def update_entry_with_new_content(new_content, expected_ending, exclusion_re=Non
 def get_questions_not_in_entry() -> str:
     content = ""
     question_list = []
-    with open(journal_info["questions_file_path"], "r", encoding="utf-8") as file:
+    with open(QUESTIONS_TXT, "r", encoding="utf-8") as file:
         for line in file:
             question_list.append(line)
     if path.exists(journal_info["entry_file_path"]):
