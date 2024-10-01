@@ -119,12 +119,12 @@ def pull_tarot_card() -> str:
 
 
 global_wordcount_goal = 750
-current_hour = int(datetime.now().strftime("%H"))
 morning_start_hour = 4
 afternoon_start_hour = 12
 evening_start_hour = 18
 
 
+current_hour = int(datetime.now().strftime("%H"))
 is_late_night = current_hour < morning_start_hour
 is_morning = morning_start_hour < current_hour < afternoon_start_hour
 is_afternoon = afternoon_start_hour < current_hour < evening_start_hour
@@ -146,7 +146,7 @@ def get_ia_writer_style_wordcount_from_string(content: str) -> int:
 
 def get_ia_writer_style_wordcount_from_entry() -> int:
     """Determine word count, approximating macOS iA Writer word count"""
-    file_path = journal_info["entry_file_path"]
+    file_path = journal_info['entry_file_path']
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
     return get_ia_writer_style_wordcount_from_string(content)
@@ -163,9 +163,9 @@ ordinal_strings = {
 
 journal_info = {}
 if is_late_night:
-    journal_info["timestamp_hhmm"] = str(2400 + int(datetime.now().strftime("%H%M")))
+    journal_info['timestamp_hhmm'] = str(2400 + int(datetime.now().strftime("%H%M")))
 else:
-    journal_info["timestamp_hhmm"] = datetime.now().strftime("%H%M")
+    journal_info['timestamp_hhmm'] = datetime.now().strftime("%H%M")
 
 
 def generate_title(base_date: datetime) -> str:
@@ -174,38 +174,38 @@ def generate_title(base_date: datetime) -> str:
 
 
 if is_late_night:
-    journal_info["title_now"] = generate_title(datetime.now() - timedelta(days=1))
+    journal_info['title_now'] = generate_title(datetime.now() - timedelta(days=1))
     weeks_ago_string = generate_title(datetime.now() - timedelta(weeks=8, days=1))
-    journal_info["title_now_8_weeks_ago"] = weeks_ago_string
+    journal_info['title_now_8_weeks_ago'] = weeks_ago_string
 else:
-    journal_info["title_now"] = generate_title(datetime.now())
-    journal_info["title_now_8_weeks_ago"] = generate_title(datetime.now() - - timedelta(weeks=8))
+    journal_info['title_now'] = generate_title(datetime.now())
+    journal_info['title_now_8_weeks_ago'] = generate_title(datetime.now() - - timedelta(weeks=8))
 
 cur_os = platform.system()
 if cur_os == "Darwin":
     path_string = "~/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/Morning Pages"
-    journal_info["path"] = path.expanduser(path_string)
-    journal_info["editor_subprocess"] = ["open", "-a", "iA Writer"]
+    journal_info['path'] = path.expanduser(path_string)
+    journal_info['editor_subprocess'] = ['open", "-a", "iA Writer']
 elif cur_os == "Windows":
-    journal_info["path"] = path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
-    journal_info["editor_subprocess"] = [r"C:\Program Files\iA Writer\iAWriter.exe"]
+    journal_info['path'] = path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages")
+    journal_info['editor_subprocess'] = [r'C:\Program Files\iA Writer\iAWriter.exe']
 else:
     raise ValueError("This script only meant for macOS (Darwin) and Windows at this time")
 
 
 if args['test']:
-    journal_info["path"] = path.expanduser("~")
-journal_info["entry_file_path"] = journal_info["path"] + "/" + journal_info["title_now"] + ".txt"
-journal_info["editor_subprocess"].append(journal_info["entry_file_path"])
+    journal_info['path'] = path.expanduser("~")
+journal_info['entry_file_path'] = journal_info['path'] + "/" + journal_info['title_now'] + ".txt"
+journal_info['editor_subprocess'].append(journal_info['entry_file_path'])
 
 
 def create_morning_content() -> str:
-    initial_content = f"""{journal_info["title_now"]}\n"""
-    initial_content += f"""#MorningPages, started at {journal_info["timestamp_hhmm"]}\n"""
+    initial_content = f"""{journal_info['title_now']}\n"""
+    initial_content += f"""#MorningPages, started at {journal_info['timestamp_hhmm']}\n"""
     initial_content += "\n\n\nGoal WC: MORNINGWORDCOUNT\n"
     if args['tarot']:
         initial_content += f"{pull_tarot_card()}\n"
-    if args["questions"]:
+    if args['questions']:
         initial_content += get_questions_not_in_entry()
     if args['stoic_prompt']:
         initial_content += get_stoic_entries()
@@ -230,7 +230,7 @@ def open_editor(cmd: list) -> None:
 
 def update_entry_with_new_content(new_content, expected_ending, exclusion_re=None) -> None:
     content = ""
-    with open(journal_info["entry_file_path"], "r", encoding="utf-8") as file:
+    with open(journal_info['entry_file_path'], "r", encoding="utf-8") as file:
         content = file.read()
     if exclusion_re and re.search(exclusion_re, content, flags=re.MULTILINE):
         return
@@ -240,7 +240,7 @@ def update_entry_with_new_content(new_content, expected_ending, exclusion_re=Non
     if args['test']:
         print(content)
         return
-    with open(journal_info["entry_file_path"], "w", encoding="utf-8") as file:
+    with open(journal_info['entry_file_path'], "w", encoding="utf-8") as file:
         file.write(content)
 
 
@@ -250,8 +250,8 @@ def get_questions_not_in_entry() -> str:
     with open(QUESTIONS_TXT, "r", encoding="utf-8") as file:
         for line in file:
             question_list.append(line)
-    if path.exists(journal_info["entry_file_path"]):
-        with open(journal_info["entry_file_path"], "r", encoding='utf-8') as file:
+    if path.exists(journal_info['entry_file_path']):
+        with open(journal_info['entry_file_path'], "r", encoding='utf-8') as file:
             for line in file:
                 if ":" in line:
                     line = line.split(":")[0] + ":\n"
@@ -271,7 +271,7 @@ def get_evening_update_string() -> str:
 
 
 def main() -> None:
-    if path.exists(journal_info["entry_file_path"]):
+    if path.exists(journal_info['entry_file_path']):
         if is_evening or is_late_night:
             update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
         if args['tarot']:
@@ -284,7 +284,7 @@ def main() -> None:
         initial_content = create_morning_content()
         create_entry(initial_content)
     if not args['test']:
-        open_editor(journal_info["editor_subprocess"])
+        open_editor(journal_info['editor_subprocess'])
 
 
 main()
@@ -293,5 +293,5 @@ if args['test']:
     print(json.dumps(journal_info, indent=4, sort_keys=True))
     print("safe to delete file? if not, hit ctrl-C")
     input()
-    # print("removing " + journal_info["entry_file_path"])
-    # remove(journal_info["entry_file_path"])
+    # print("removing " + journal_info['entry_file_path'])
+    # remove(journal_info['entry_file_path'])
