@@ -6,15 +6,20 @@ import platform
 import re
 import subprocess
 import json
+import random
 from os import path  # , remove
 import argparse
 from pandas import read_csv, to_datetime
 
 
 script_dir = path.dirname(path.abspath(__file__))
-reference_dir = "examples/"
+reference_dir = "personal/"
 stoics_file = "stoics.csv"
 stoices_progress_file = "stoic_progress.json"
+tarot_file = "tarot.csv"
+TAROT_CSV = path.join(script_dir, reference_dir + tarot_file)
+TAROT_SKIP_COLUMNS = set({'Group', 'Up', 'Across', 'Down'})
+TAROT_COLUMN_MAX_LEN = 30
 STOIC_CSV = path.join(script_dir, reference_dir + stoics_file)
 STOIC_PROGRESS = path.join(script_dir, reference_dir + stoices_progress_file)
 STOIC_CATCHUP_RATE = 2
@@ -85,7 +90,6 @@ def get_stoic_entries() -> str:
         entry = {}
         if any(df['Day'] == day):
             entry['date'] = df.loc[df['Day'] == day, 'Date'].iloc[0]
-            # if not isnull(df.loc[df['Day'] == day, 'Date']).iloc[0] else ""
             entry['text'] = df.loc[df['Day'] == day, 'Question'].iloc[0]
         else:
             entry['date'] = ""
@@ -97,23 +101,17 @@ def get_stoic_entries() -> str:
     return result
 
 
-if args['tarot']:
-
-    import random
-    tarot_csv_file = "~/.dot/personal/mots.csv"
-
-
 def pull_tarot_card() -> str:
-    df = read_csv(tarot_csv_file, sep=",")
+    df = read_csv(TAROT_CSV, sep=",")
     card = random.choice(df['Card'])
     row = df[df['Card'] == card]
     row = row.squeeze()
     result = "Tarot: "
-    skip = set({'Group', 'Up', 'Across', 'Down'})
+    skip = TAROT_SKIP_COLUMNS
     for column, value in row.items():
         if not isinstance(value, str) or column in skip:
             continue
-        if len(value) > 30 or value == "-" or value[-1] == ".":
+        if len(value) > TAROT_COLUMN_MAX_LEN or value == "-" or value[-1] == ".":
             continue
         result += f"{value}, "
     return result[:-2] + "\n"
