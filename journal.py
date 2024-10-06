@@ -27,6 +27,12 @@ print(STOIC_CSV, STOIC_PROGRESS)
 questions_file = "questions.txt"
 QUESTIONS_TXT = path.join(script_dir, reference_dir + questions_file)
 
+global_wordcount_goal = 750
+morning_start_hour = 4
+afternoon_start_hour = 12
+evening_start_hour = 17
+
+
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
 parser.add_argument("-a", "--all", default=False, action='store_true',
                     help="add everything (equivalent: -qts)")
@@ -116,12 +122,6 @@ def pull_tarot_card() -> str:
             continue
         result += f"{value}, "
     return result[:-2] + "\n"
-
-
-global_wordcount_goal = 750
-morning_start_hour = 4
-afternoon_start_hour = 12
-evening_start_hour = 18
 
 
 current_hour = int(datetime.now().strftime("%H"))
