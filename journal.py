@@ -23,7 +23,7 @@ TAROT_COLUMN_MAX_LEN = 30
 STOIC_CSV = path.join(script_dir, reference_dir + stoics_file)
 STOIC_PROGRESS = path.join(script_dir, reference_dir + stoices_progress_file)
 STOIC_CATCHUP_RATE = 2
-print(STOIC_CSV, STOIC_PROGRESS)
+
 questions_file = "questions.txt"
 QUESTIONS_TXT = path.join(script_dir, reference_dir + questions_file)
 
@@ -291,7 +291,7 @@ main()
 
 if args['test']:
     print(json.dumps(journal_info, indent=4, sort_keys=True))
-    print("safe to delete file? if not, hit ctrl-C")
-    input()
+    #print("safe to delete file? if not, hit ctrl-C")
+    #input()
     # print("removing " + journal_info['entry_file_path'])
     # remove(journal_info['entry_file_path'])
