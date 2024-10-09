@@ -35,11 +35,9 @@ evening_start_hour = 17
 
 parser = argparse.ArgumentParser(description="the command line options for journal.py")
 parser.add_argument("-a", "--all", default=False, action='store_true',
-                    help="add everything (equivalent: -qtsm)")
+                    help="add everything (equivalent: -qts)")
 parser.add_argument("-q", "--questions", default=False, action='store_true',
                     help="add questions.txt when creating an entry", )
-parser.add_argument("-nq", "--no-questions", default=False, action='store_true',
-                    help="do not add questions.txt when re-opening created entry")
 parser.add_argument("-t", "--tarot", default=False, action='store_true',
                     help="pull a tarot card and insert it into the entry")
 parser.add_argument("-s", "--stoic-prompt", default=False, action='store_true',
@@ -47,7 +45,7 @@ parser.add_argument("-s", "--stoic-prompt", default=False, action='store_true',
 parser.add_argument("-T", "--test", default=False, action='store_true',
                     help="run in test mode, create file in ~ instead of normal location")
 # TODO: add -P for print() only testing
-parser.add_argument("-m", "--move-stoics", default=False, action='store_true',
+parser.add_argument("-M", "--do-not-move-stoics", default=False, action='store_true',
                     help="move stoic questions below #EveningPages / end of entry")
 
 args = vars(parser.parse_args())
@@ -56,7 +54,6 @@ if args['all']:
     args['questions'] = True
     args['tarot'] = True
     args['stoic_prompt'] = True
-    args['move_stoics'] = True
 
 
 def stoic_json_get_progress() -> int:
@@ -309,11 +306,11 @@ def main() -> None:
     if path.exists(journal_info['entry_file_path']):
         if is_evening or is_late_night:
             update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
-            if args['move_stoics']:
+            if not args['do_not_move_stoics']:
                 move_stoics_to_end()
         if args['tarot']:
             update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
-        if args['questions'] and not args['no_questions']:
+        if args['questions']:
             update_entry_with_new_content(get_questions_not_in_entry(), "\n")
         if args['stoic_prompt']:
             update_entry_with_new_content(get_stoic_entries(), "\n", r"^- Daily Stoic Prompt,.*")
