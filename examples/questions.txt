@@ -1,0 +1,5 @@
+- What do you want to do today?
+- Do you notice journal.py doesn't add a space after a question mark?
+	-
+- But it will after a colon, in case you want to answer on one line
+	- How would you rate that? On a scale of 1-10:
