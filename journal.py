@@ -7,7 +7,7 @@ import re
 import subprocess
 import json
 import random
-from os import path  # , remove
+from os import path, remove
 import argparse
 from pandas import read_csv, to_datetime
 
@@ -218,7 +218,7 @@ def create_morning_content() -> str:
 def create_entry(content: str) -> None:
     if args['test']:
         print(content)
-        return
+        # return
     with open(journal_info['entry_file_path'], 'w', encoding='utf-8') as file:
         file.write(content)
 
@@ -239,7 +239,7 @@ def update_entry_with_new_content(new_content, expected_ending, exclusion_re=Non
     content += new_content
     if args['test']:
         print(content)
-        return
+        # return
     with open(journal_info['entry_file_path'], "w", encoding="utf-8") as file:
         file.write(content)
 
@@ -270,10 +270,42 @@ def get_evening_update_string() -> str:
     return content
 
 
+def get_content_and_cut_dictionary(file_path, start, end_non_inclusive) -> dict:
+    start_pattern = rf"({start}.*?)"
+    end_pattern = rf"({end_non_inclusive}.*?)"
+    cut_section = []
+    content = []
+    cutting = False
+    with open(file_path, 'r', encoding="utf-8") as file:
+        content_list = file.readlines()
+    count = 0
+    for line in content_list:
+        count += 1
+        if not cutting and re.match(start_pattern, line):
+            print("Cutting at line " + str(count))
+            cutting = True
+        if re.match(end_pattern, line):
+            cutting = False
+        if cutting:
+            cut_section.append(line)
+        else:
+            content.append(line)
+    return {"content": "".join(content), "cut": "".join(cut_section)}
+
+
+def move_stoics_to_end():
+    cut_section = get_content_and_cut_dictionary(journal_info['entry_file_path'],
+                                                 r"^- Daily Stoic Prompt,.*", r"^#EveningPages.*")
+    with open(journal_info['entry_file_path'], 'w', encoding="utf-8") as file:
+        file.write(cut_section['content'])
+        file.write(cut_section['cut'])
+
+
 def main() -> None:
     if path.exists(journal_info['entry_file_path']):
         if is_evening or is_late_night:
             update_entry_with_new_content(get_evening_update_string(), "\n", r"^#EveningPages.*")
+            move_stoics_to_end()
         if args['tarot']:
             update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
         if args['questions'] and not args['no_questions']:
@@ -290,8 +322,13 @@ def main() -> None:
 main()
 
 if args['test']:
-    print(json.dumps(journal_info, indent=4, sort_keys=True))
-    #print("safe to delete file? if not, hit ctrl-C")
-    #input()
-    # print("removing " + journal_info['entry_file_path'])
-    # remove(journal_info['entry_file_path'])
+    do_delete = False
+    if do_delete:
+        print("safe to delete file? if not, hit ctrl-C")
+        input()
+        print("removing " + journal_info['entry_file_path'])
+        remove(journal_info['entry_file_path'])
+    else:
+        print(json.dumps(journal_info, indent=4, sort_keys=True))
+        if path.exists(journal_info['entry_file_path']):
+            print("not deleting " + journal_info['entry_file_path'])
