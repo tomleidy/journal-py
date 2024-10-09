@@ -331,6 +331,7 @@ if args['test']:
         print("removing " + journal_info['entry_file_path'])
         remove(journal_info['entry_file_path'])
     else:
-        print(json.dumps(journal_info, indent=4, sort_keys=True))
         if path.exists(journal_info['entry_file_path']):
             print("not deleting " + journal_info['entry_file_path'])
+        else:
+            print(json.dumps(journal_info, indent=4, sort_keys=True))
