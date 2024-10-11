@@ -298,7 +298,7 @@ def move_stoics_to_end():
     cut_section = get_content_and_cut_dictionary(journal_info['entry_file_path'],
                                                  r"^- Daily Stoic Prompt,.*", r"^#EveningPages.*")
     with open(journal_info['entry_file_path'], 'w', encoding="utf-8") as file:
-        file.write(cut_section['content'])
+        file.write(cut_section['content'] + "\n\n")
         file.write(cut_section['cut'])
 
 
