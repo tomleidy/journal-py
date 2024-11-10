@@ -6,8 +6,6 @@ from typing import Optional, Tuple, Dict
 import netifaces
 import requests
 
-# pylint: disable=unused-argument,fixme
-
 
 def debug_print(msg: str, start_time: float):
     """Print debug timing information."""
@@ -96,16 +94,20 @@ def save_network_cache(cache: Dict[str, NetworkLocation]) -> None:
 
 def get_lat_lon_from_zip(zipcode: str) -> Dict[str, float]:
     """Convert ZIP code to latitude/longitude using public API."""
-    response = requests.get(f'https://api.zippopotam.us/us/{zipcode}', timeout=10)
-    if response.status_code != 200:
-        raise ValueError(f"Invalid ZIP code: {zipcode}")
+    try:
+        response = requests.get(f'https://api.zippopotam.us/us/{zipcode}', timeout=5)
+        if response.status_code == 404:
+            raise ValueError(f"ZIP code not found: {zipcode}")
+        response.raise_for_status()
 
-    data = response.json()
-    return {
-        'zipcode': zipcode,
-        'latitude': float(data['places'][0]['latitude']),
-        'longitude': float(data['places'][0]['longitude'])
-    }
+        data = response.json()
+        return {
+            'zipcode': zipcode,
+            'latitude': float(data['places'][0]['latitude']),
+            'longitude': float(data['places'][0]['longitude'])
+        }
+    except requests.RequestException as e:
+        raise RuntimeError(f"Could not look up coordinates for ZIP {zipcode}: {e}")
 
 
 def create_network_key(ipv4: Optional[str], ipv6: Optional[str]) -> str:
@@ -122,7 +124,7 @@ def get_location() -> Tuple[float, float]:
         debug_print("Network detection", start_time)
 
         if not ipv4 and not ipv6:
-            raise ValueError("Could not detect network addresses")
+            raise ValueError("Location information unavailable: no network detected")
 
         network_key = create_network_key(ipv4, ipv6)
         network_cache = load_network_cache()
@@ -130,8 +132,12 @@ def get_location() -> Tuple[float, float]:
 
         if network_key not in network_cache:
             print(f"Network not found in cache (IPv4: {ipv4}, IPv6: {ipv6})")
-            zipcode = input("Enter ZIP code for current network: ")
-            location_data = get_lat_lon_from_zip(zipcode)
+            try:
+                zipcode = input("Enter ZIP code for current network: ")
+                location_data = get_lat_lon_from_zip(zipcode)
+            except Exception as e:
+                raise RuntimeError("Location information unavailable: lookup failed") from e
+
             debug_print("ZIP lookup", start_time)
 
             network_cache[network_key] = NetworkLocation(
@@ -141,16 +147,14 @@ def get_location() -> Tuple[float, float]:
                 longitude=location_data['longitude'],
                 zipcode=zipcode
             )
-            save_network_cache(network_cache)
-            debug_print("Save cache", start_time)
-        # else:
-        #    print(f"Using cached location for IP {ipv4}")
+            try:
+                save_network_cache(network_cache)
+                debug_print("Save cache", start_time)
+            except Exception:
+                pass  # Ignore cache save failures
 
         location = network_cache[network_key]
         return (location.latitude, location.longitude)
 
-    except requests.RequestException as e:
-        print(f"Error getting location: {e}")
-        zipcode = input("Enter ZIP code manually: ")
-        location_data = get_lat_lon_from_zip(zipcode)
-        return (location_data['latitude'], location_data['longitude'])
+    except Exception as e:
+        raise RuntimeError(f"Location information unavailable: {str(e)}")

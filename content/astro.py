@@ -11,15 +11,15 @@ def get_astrology_summary() -> str:
     try:
         content = "\nAstrology:\n"
         status = get_planetary_status()
-        content += f"Moon Phase: {get_moon_phase()}\n\n"
+        content += f"Moon Phase: {get_moon_phase()}\n"
 
         for planet, info in status.items():
             content += f"{planet} in {info['zodiac']} ({info['motion']}), "
-            content += f"↑ {info['rise']}, ↓ {info['set']}\n"
+            content += f"rise {info['rise']}, set {info['set']}\n"
 
-        return content + "\n"
-    except Exception as e:
-        return f"\nAstrology: Unable to calculate positions: {str(e)}\n"
+        return content
+    except Exception:
+        return "\nAstrology: Location information unavailable\n"
 
 
 def get_zodiac_sign(ra_radians: float) -> str:
