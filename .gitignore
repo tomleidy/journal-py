@@ -1,2 +1,5 @@
 venv
 personal
+**.json
+.DS_Store
+**.pyc
