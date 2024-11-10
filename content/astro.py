@@ -15,7 +15,7 @@ def get_astrology_summary() -> str:
 
         for planet, info in status.items():
             content += f"{planet} in {info['zodiac']} ({info['motion']}), "
-            content += f"rise {info['rise']}, set {info['set']}\n"
+            content += f"↑ {info['rise']}, ↓ {info['set']}\n"
 
         return content
     except Exception:
