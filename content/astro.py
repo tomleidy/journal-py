@@ -17,7 +17,7 @@ def get_astrology_summary() -> str:
             content += f"{planet} in {info['zodiac']} ({info['motion']}), "
             content += f"↑ {info['rise']}, ↓ {info['set']}\n"
 
-        return content
+        return content + "\n"
     except Exception:
         return "\nAstrology: Location information unavailable\n"
 

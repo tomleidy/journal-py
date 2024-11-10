@@ -3,7 +3,7 @@ from os import path
 
 # Go up one level from config/
 SCRIPT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
-REFERENCE_DIR = path.expanduser("~/.dot/scripts/journal/personal/")
+REFERENCE_DIR = path.expanduser("personal/")
 
 STOICS_FILE = "stoics.csv"
 STOICS_PROGRESS_FILE = "stoic_progress.json"
