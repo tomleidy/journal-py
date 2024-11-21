@@ -29,7 +29,7 @@ EVENING_START_HOUR = 17
 STOIC_CATCHUP_RATE = 2
 
 # Tarot settings
-TAROT_SKIP_COLUMNS = {'Group', 'Up', 'Across', 'Down'}
+TAROT_SKIP_COLUMNS = {'Seq', 'Group', 'Up', 'Across', 'Down'}
 TAROT_COLUMN_MAX_LEN = 30
 
 # Platform-specific settings
