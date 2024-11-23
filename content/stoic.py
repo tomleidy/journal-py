@@ -65,8 +65,6 @@ def get_stoic_entries() -> str:
         current_catchup_date = date_from_now(days_left)
 
     result = "\n"
-    if days_left > 0:
-        result += f"Stoic Prompts remaining: {days_left}, est. {current_catchup_date} \n"
 
     for x in range(num_entries_to_load):
         day = progress['day'] + x
@@ -83,6 +81,8 @@ def get_stoic_entries() -> str:
         result += f"- Daily Stoic Prompt, {date.strftime('%-m/%d')}:\n{text}\n"
         result += "\t- Morning:\n\t\t- \n\t- Evening:\n\t\t- \n"
 
+    if days_left > 0:
+        result += f"\nStoic Prompts remaining: {days_left}, est. completion {current_catchup_date}\n\n"
     progress['day'] += num_entries_to_load
     stoic_json_set_progress(progress)
     return result
