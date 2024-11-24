@@ -15,8 +15,6 @@ def get_ia_writer_style_wordcount_from_string(content: str) -> int:
     content = re.sub(r'(\S)[…](\S)', '\1 \2', content)
     content = re.sub(r'([a-zA-Z0-9])\.([a-zA-Z0-9])', r'\1 \2', content)
     content = re.sub(r'[↓↑]', '', content)
-    print(content)
-    print(f":::\n\n\n")
     return len(content.split())
 
 
