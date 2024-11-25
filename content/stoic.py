@@ -47,6 +47,18 @@ def stoic_json_set_progress(progress):
             json.dump(new_progress, file)
 
 
+def get_number_of_entries_to_load(progress_day: int) -> int:
+    """Return the number of entries to load based on progress relative to current date, within bounds of catchup rate"""
+    if progress_day > 366:
+        progress_day = ((progress_day - 1) % 366) + 1
+    today = datetime.now().timetuple().tm_yday
+    if today < progress_day < today + STOIC_CATCHUP_RATE:
+        return progress_day - today
+    if today == progress_day:
+        return 1
+    return STOIC_CATCHUP_RATE
+
+
 def get_stoic_entries() -> str:
     """Return the relevant entry from stoics.csv"""
     progress = stoic_json_get_progress()
@@ -56,18 +68,17 @@ def get_stoic_entries() -> str:
         reader = csv.DictReader(f)
         entries = list(reader)
 
-    num_entries_to_load = 1
+    num_entries_to_load = get_number_of_entries_to_load(progress['day'])
     current_catchup_date = ""
     days_left = 0
     if progress['day'] < current_day:
-        num_entries_to_load = STOIC_CATCHUP_RATE
         days_left = days_until_catch_up(progress['day'], STOIC_CATCHUP_RATE)
         current_catchup_date = date_from_now(days_left)
 
     result = "\n"
 
     for x in range(num_entries_to_load):
-        day = progress['day'] + x
+        day = ((progress['day'] + x - 1) % 366) + 1  # to avoid Dec 31st breakage
         day_entries = [e for e in entries if int(e['Day']) == day]
         entry = day_entries[0] if day_entries else None
 
@@ -81,8 +92,8 @@ def get_stoic_entries() -> str:
         result += f"- Daily Stoic Prompt, {date.strftime('%-m/%d')}:\n{text}\n"
         result += "\t- Morning:\n\t\t- \n\t- Evening:\n\t\t- \n"
 
-    if days_left > 0:
-        result += f"\nStoic Prompts remaining: {days_left}, est. completion {current_catchup_date}\n\n"
+    # if days_left > 0:
+    #    result += f"\nStoic Prompts remaining: {days_left}, est. completion {current_catchup_date}\n\n"
     progress['day'] += num_entries_to_load
     stoic_json_set_progress(progress)
     return result
