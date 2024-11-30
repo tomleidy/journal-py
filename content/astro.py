@@ -1,5 +1,6 @@
 """Astrological content module"""
 from datetime import datetime, timezone
+import types.ephem_types as et
 import ephem
 
 # Remove network dependency by providing default test coordinates
@@ -7,7 +8,7 @@ DEFAULT_LAT = 40.7128  # New York City
 DEFAULT_LON = -74.0060
 
 
-def get_zodiac_sign(body: ephem.Body) -> str:
+def get_zodiac_sign(body: et.EphemBody) -> str:
     """Get zodiac sign for a celestial body using ecliptic longitude"""
     # Get ecliptic longitude in degrees
     ecl_lon = ephem.Ecliptic(body).lon * 180 / ephem.pi
@@ -27,7 +28,7 @@ def get_zodiac_sign(body: ephem.Body) -> str:
     return "Pisces"  # For 330-360 degrees
 
 
-def format_time(date: ephem.Date) -> str:
+def format_time(date: et.EphemDate) -> str:
     """Format ephem.Date to local 24-hour time string."""
     utc_dt = ephem.Date(date).datetime()
     utc_dt = utc_dt.replace(tzinfo=timezone.utc)
@@ -103,6 +104,7 @@ def get_astrological_positions(lat=DEFAULT_LAT, lon=DEFAULT_LON) -> str:
 
 
 def get_ephem_planets(visible_to_naked_eye_only=False) -> dict:
+    """Get dictionary of all planetary ephem objects"""
     # pylint: disable=no-member
     planets = {
         "Sun": ephem.Sun(),
