@@ -102,7 +102,7 @@ def get_astrological_positions(lat=DEFAULT_LAT, lon=DEFAULT_LON) -> str:
     return content
 
 
-def get_ephem_planets() -> dict:
+def get_ephem_planets(visible_to_naked_eye_only=False) -> dict:
     # pylint: disable=no-member
     planets = {
         "Sun": ephem.Sun(),
@@ -112,10 +112,14 @@ def get_ephem_planets() -> dict:
         "Mars": ephem.Mars(),
         "Jupiter": ephem.Jupiter(),
         "Saturn": ephem.Saturn(),
-        "Uranus": ephem.Uranus(),
-        "Neptune": ephem.Neptune(),
-        "Pluto": ephem.Pluto()
     }
+    if not visible_to_naked_eye_only:
+        outer_planets = {
+            "Uranus": ephem.Uranus(),
+            "Neptune": ephem.Neptune(),
+            "Pluto": ephem.Pluto()
+        }
+        planets.update(outer_planets)
     # pylint: enable=no-member
     return planets
 
@@ -130,7 +134,7 @@ def get_rise_set_times(lat=DEFAULT_LAT, lon=DEFAULT_LON) -> str:
     observer.elevation = 0
     observer.horizon = '-0:34'
 
-    planets = get_ephem_planets()
+    planets = get_ephem_planets(visible_to_naked_eye_only=True)
 
     # Collect rise/set times and signs
     rise_set_data = []
