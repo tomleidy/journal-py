@@ -1,6 +1,6 @@
 """Astrological content module"""
 from datetime import datetime, timezone
-import types.ephem_types as et
+import localtypes.ephem_types as et
 import ephem
 
 # Remove network dependency by providing default test coordinates
