@@ -62,19 +62,12 @@ def get_number_of_entries_to_load(progress_day: int) -> int:
 def get_stoic_entries() -> str:
     """Return the relevant entry from stoics.csv"""
     progress = stoic_json_get_progress()
-    current_day = datetime.now().timetuple().tm_yday
 
     with open(STOIC_CSV, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         entries = list(reader)
 
     num_entries_to_load = get_number_of_entries_to_load(progress['day'])
-    current_catchup_date = ""
-    days_left = 0
-    if progress['day'] < current_day:
-        days_left = days_until_catch_up(progress['day'], STOIC_CATCHUP_RATE)
-        current_catchup_date = date_from_now(days_left)
-
     result = "\n"
 
     for x in range(num_entries_to_load):
@@ -92,8 +85,6 @@ def get_stoic_entries() -> str:
         result += f"- Daily Stoic Prompt, {date.strftime('%-m/%d')}:\n{text}\n"
         result += "\t- Morning:\n\t\t- \n\t- Evening:\n\t\t- \n"
 
-    # if days_left > 0:
-    #    result += f"\nStoic Prompts remaining: {days_left}, est. completion {current_catchup_date}\n\n"
     progress['day'] += num_entries_to_load
     stoic_json_set_progress(progress)
     return result
