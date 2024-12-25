@@ -76,6 +76,18 @@ def is_retrograde(planet, observer, time_period_days=7):
     return past_ra > current_ra
 
 
+def get_motion_string(name, planet, observer, time_period_days=7):
+    """Return motion string if planet is direct/retrograde"""
+    can_retrograde = {"Mercury", "Venus", "Mars",
+                      "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"}
+    if name not in can_retrograde:
+        print(name)
+        return ""
+    if is_retrograde(planet, observer):
+        return " (R)"
+    return " (D)"
+
+
 def get_astrological_positions(lat=DEFAULT_LAT, lon=DEFAULT_LON) -> str:
     """Get formatted string of planetary positions and motions"""
     observer = ephem.Observer()
@@ -97,8 +109,10 @@ def get_astrological_positions(lat=DEFAULT_LAT, lon=DEFAULT_LON) -> str:
     for name in planet_order:
         planet = planets[name]
         planet.compute(observer)
-        motion = "D" if not is_retrograde(planet, observer) else "R"
-        content += f"{name} in {get_zodiac_sign(planet)} ({motion})\n"
+
+        motion = get_motion_string(name, planet, observer)
+
+        content += f"{name} in {get_zodiac_sign(planet)}{motion}\n"
 
     return content
 
