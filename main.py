@@ -9,7 +9,6 @@ from utils.file_ops import open_editor
 from content.tarot import pull_tarot_card
 from content.questions import get_questions_not_in_entry
 from content.stoic import get_stoic_entries
-from content.astro import get_astrology_summary
 
 
 def parse_arguments():
@@ -53,8 +52,6 @@ def main():
                 move_stoics_to_end()
         if state.args['tarot']:
             update_entry_with_new_content(pull_tarot_card(), "\n", r"^Tarot:.+$")
-        if state.args['zodiac']:
-            update_entry_with_new_content(get_astrology_summary(), "\n", r"^Planetary Positions:")
         if state.args['questions']:
             update_entry_with_new_content(get_questions_not_in_entry(), "\n")
         if state.args['stoic_prompt']:

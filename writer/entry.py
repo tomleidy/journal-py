@@ -7,7 +7,6 @@ from writer.wordcount import get_ia_writer_style_wordcount_from_string, get_ia_w
 from content.tarot import pull_tarot_card
 from content.stoic import get_stoic_entries
 from content.questions import get_questions_not_in_entry
-from content.astro import get_astrology_summary
 
 
 def create_morning_content() -> str:
@@ -18,8 +17,6 @@ def create_morning_content() -> str:
     initial_content += "\n\n\nGoal WC: MORNINGWORDCOUNT\n"
     if state.args['tarot']:
         initial_content += f"{pull_tarot_card()}\n"
-    if state.args['zodiac']:
-        initial_content += get_astrology_summary()
     if state.args['questions']:
         initial_content += get_questions_not_in_entry()
     if state.args['stoic_prompt']:
