@@ -1,4 +1,5 @@
 """Stoic content functions for managing daily stoic prompts"""
+
 import json
 import math
 import csv
@@ -21,10 +22,10 @@ def date_from_now(days_ahead: int) -> str:
 def stoic_json_get_progress() -> dict:
     """Read progress from JSON file or start from beginning if not found."""
     try:
-        with open(STOIC_PROGRESS, 'r', encoding='utf-8') as file:
+        with open(STOIC_PROGRESS, "r", encoding="utf-8") as file:
             progress = json.load(file)
-            date = datetime.strptime(progress['updated_on'], '%Y-%m-%d')
-            return {"day": progress['day'], "updated_on": date}
+            date = datetime.strptime(progress["updated_on"], "%Y-%m-%d")
+            return {"day": progress["day"], "updated_on": date}
     except (FileNotFoundError, KeyError):
         return {"day": 1, "updated_on": datetime(2024, 1, 1)}
 
@@ -33,17 +34,17 @@ def stoic_json_set_progress(progress):
     """Save progress if applicable"""
     state = get_state()
     current_date = datetime.now().date()
-    saved_date = progress['updated_on'].date()
+    saved_date = progress["updated_on"].date()
 
     if current_date != saved_date:
         new_progress = {
-            "day": progress['day'],
-            "updated_on": datetime.now().strftime('%Y-%m-%d')
+            "day": progress["day"],
+            "updated_on": datetime.now().strftime("%Y-%m-%d"),
         }
-        if state.args['test']:
+        if state.args["test"]:
             print("json.dump:", new_progress)
             return
-        with open(STOIC_PROGRESS, 'w', encoding='utf-8') as file:
+        with open(STOIC_PROGRESS, "w", encoding="utf-8") as file:
             json.dump(new_progress, file)
 
 
@@ -63,21 +64,21 @@ def get_stoic_entries() -> str:
     """Return the relevant entry from stoics.csv"""
     progress = stoic_json_get_progress()
 
-    with open(STOIC_CSV, 'r', encoding='utf-8') as f:
+    with open(STOIC_CSV, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         entries = list(reader)
 
-    num_entries_to_load = get_number_of_entries_to_load(progress['day'])
+    num_entries_to_load = get_number_of_entries_to_load(progress["day"])
     result = "\n"
 
     for x in range(num_entries_to_load):
-        day = ((progress['day'] + x - 1) % 366) + 1  # to avoid Dec 31st breakage
-        day_entries = [e for e in entries if int(e['Day']) == day]
+        day = ((progress["day"] + x - 1) % 366) + 1  # to avoid Dec 31st breakage
+        day_entries = [e for e in entries if int(e["Day"]) == day]
         entry = day_entries[0] if day_entries else None
 
         if entry:
-            date = datetime.strptime(entry['Date'], '%m/%d')
-            text = entry['Question']
+            date = datetime.strptime(entry["Date"], "%m/%d")
+            text = entry["Question"]
         else:
             date = datetime.now()  # Fallback date
             text = f"No entry for day {day}."
@@ -85,6 +86,6 @@ def get_stoic_entries() -> str:
         result += f"- Daily Stoic Prompt, {date.strftime('%-m/%d')}:\n{text}\n"
         result += "\t- Morning:\n\t\t- \n\t- Evening:\n\t\t- \n"
 
-    progress['day'] += num_entries_to_load
+    progress["day"] += num_entries_to_load
     stoic_json_set_progress(progress)
     return result

@@ -1,12 +1,13 @@
 """Type hints for the ephem library"""
+
 from typing import TypeVar, Protocol, runtime_checkable, Union
 from datetime import datetime
 import ephem
 
 # Base types
 EphemDate = Union[ephem.Date, float]  # Changed from TypeVar to Union
-EphemDegrees = TypeVar('EphemDegrees', bound=float)
-EphemHours = TypeVar('EphemHours', bound=float)
+EphemDegrees = TypeVar("EphemDegrees", bound=float)
+EphemHours = TypeVar("EphemHours", bound=float)
 
 # pylint: disable=missing-function-docstring
 
@@ -14,6 +15,7 @@ EphemHours = TypeVar('EphemHours', bound=float)
 @runtime_checkable
 class EphemBody(Protocol):
     """Protocol for ephem celestial bodies"""
+
     name: str
     _ra: EphemHours
     _dec: EphemDegrees
@@ -22,12 +24,13 @@ class EphemBody(Protocol):
     alt: EphemDegrees
     az: EphemDegrees
 
-    def compute(self, observer: 'EphemObserver') -> None: ...
+    def compute(self, observer: "EphemObserver") -> None: ...
 
 
 @runtime_checkable
 class EphemObserver(Protocol):
     """Protocol for ephem Observer class"""
+
     lat: str
     lon: str
     elevation: float

@@ -1,11 +1,12 @@
 """Questions content functions"""
+
 import re
 from os import path
 from config.state import get_state
 from config.settings import (
     QUESTIONS_DAILY_TXT,
     QUESTIONS_WEEKLY_TXT,
-    QUESTIONS_MONTHLY_TXT
+    QUESTIONS_MONTHLY_TXT,
 )
 from utils.file_ops import read_question_file
 from utils.dates import is_sunday, is_first_of_month
@@ -30,7 +31,7 @@ def get_questions_not_in_entry() -> str:
     # Remove questions that are already in the entry
     state = get_state()
     if path.exists(state.entry_file_path):
-        with open(state.entry_file_path, "r", encoding='utf-8') as file:
+        with open(state.entry_file_path, "r", encoding="utf-8") as file:
             entry_content = file.readlines()
             for line in entry_content:
                 if ":" in line:

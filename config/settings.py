@@ -1,4 +1,5 @@
 """Static configuration settings for the journal application"""
+
 from os import path
 
 # Go up one level from config/
@@ -29,7 +30,7 @@ EVENING_START_HOUR = 17
 STOIC_CATCHUP_RATE = 2
 
 # Tarot settings
-TAROT_SKIP_COLUMNS = {'Seq', 'Group', 'Up', 'Across', 'Down'}
+TAROT_SKIP_COLUMNS = {"Seq", "Group", "Up", "Across", "Down"}
 TAROT_COLUMN_MAX_LEN = 30
 
 # Platform-specific settings
@@ -41,13 +42,19 @@ def get_platform_settings():
 
     if platform.system() == "Darwin":
         return {
-            'path': path.expanduser("~/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/Morning Pages"),
-            'editor_subprocess': ["open", "-a", "iA Writer"]
+            "path": path.expanduser(
+                "~/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/Morning Pages"
+            ),
+            "editor_subprocess": ["open", "-a", "iA Writer"],
         }
     elif platform.system() == "Windows":
         return {
-            'path': path.expanduser("~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages"),
-            'editor_subprocess': [r'C:\Program Files\iA Writer\iAWriter.exe']
+            "path": path.expanduser(
+                "~/iCloudDrive/27N4MQEA55~pro~writer/Morning Pages"
+            ),
+            "editor_subprocess": [r"C:\Program Files\iA Writer\iAWriter.exe"],
         }
     else:
-        raise ValueError("This script only meant for macOS (Darwin) and Windows at this time")
+        raise ValueError(
+            "This script only meant for macOS (Darwin) and Windows at this time"
+        )

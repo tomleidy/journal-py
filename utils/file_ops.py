@@ -1,4 +1,5 @@
 """File operations module"""
+
 import re
 import subprocess
 
@@ -19,7 +20,7 @@ def get_content_and_cut_dictionary(file_path, start, end_non_inclusive) -> dict:
     cut_section = []
     content = []
     cutting = False
-    with open(file_path, 'r', encoding="utf-8") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content_list = file.readlines()
     count = 0
     for line in content_list:
@@ -37,5 +38,5 @@ def get_content_and_cut_dictionary(file_path, start, end_non_inclusive) -> dict:
 
 
 def open_editor(cmd: list) -> None:
-    print(" ".join(cmd[0:-1]) + f" \"{cmd[-1]}\"")
+    print(" ".join(cmd[0:-1]) + f' "{cmd[-1]}"')
     subprocess.run(cmd, check=False)

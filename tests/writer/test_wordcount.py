@@ -9,44 +9,45 @@ def test_checkbox_pattern():
         ("- [x] ", 0),  # Checked checkbox
         ("- [ ] Hello", 1),  # Checkbox with word
         ("Text\n- [ ] Task\nMore text", 4),  # Checkbox in middle of content
-        ("- [ ] Task 1\n- [x] Task 2", 4)  # Multiple checkboxes
+        ("- [ ] Task 1\n- [x] Task 2", 4),  # Multiple checkboxes
     ]
 
     for input_text, expected_count in test_cases:
-        assert get_ia_writer_style_wordcount_from_string(input_text) == expected_count, \
-            f"Failed for input: '{input_text}', expected {expected_count} words"
+        assert (
+            get_ia_writer_style_wordcount_from_string(input_text) == expected_count
+        ), f"Failed for input: '{input_text}', expected {expected_count} words"
 
 
 def test_ia_writer_indentation():
     """Test that indentation word counting matches iA Writer's behavior"""
     test_text = "Normal text\n\n\tIndented block\n\tcontinues here\n\nNormal text\n\tThis indent without blank line\nNormal text"
     result = get_ia_writer_style_wordcount_from_string(test_text)
-    assert result == 11, f"Expected 11 words, got {result}. iA Writer should count:\n" + \
-        "- 'Normal text' (2)\n" + \
-        "- 'Normal text' (2)\n" + \
-        "- 'This indent without blank line' (5)\n" + \
-        "- 'Normal text' (2)\n" + \
-        "Total: 11 words"
+    assert result == 11, (
+        f"Expected 11 words, got {result}. iA Writer should count:\n"
+        + "- 'Normal text' (2)\n"
+        + "- 'Normal text' (2)\n"
+        + "- 'This indent without blank line' (5)\n"
+        + "- 'Normal text' (2)\n"
+        + "Total: 11 words"
+    )
 
     # Additional test cases to verify specific behaviors
     test_cases = [
         # Basic indentation after blank line (should exclude)
         ("1text\n\n\tindented\n\tstill indented\n\ntext", 2),
-
         # Indentation without blank line (should include)
         ("2text\n\tindented\ntext", 3),
-
         # Multiple indented blocks
         ("3text\n\n\tblock one\n\tmore one\n\ntext\n\n\tblock two\n\tmore two", 2),
-
         # Mixed indentation
-        ("4text\n\tno blank line indent\n\ntext\n\n\tblank line indent", 6)
+        ("4text\n\tno blank line indent\n\ntext\n\n\tblank line indent", 6),
     ]
 
     for test_text, expected_count in test_cases:
         result = get_ia_writer_style_wordcount_from_string(test_text)
-        assert result == expected_count, \
-            f"Failed for text:\n{test_text}\nExpected {expected_count} words, got {result}"
+        assert (
+            result == expected_count
+        ), f"Failed for text:\n{test_text}\nExpected {expected_count} words, got {result}"
 
 
 def test_special_character_splitting():
@@ -59,23 +60,22 @@ def test_special_character_splitting():
         ("4>3", 2, "greater than splits"),
         ("1/11/1111", 3, "forward slashes split"),
         ("x=3", 2, "equals sign splits"),
-
         # Multiple of same special chars
         ("snake_case_long", 3, "multiple underscores"),
         ("1:2:3:4", 4, "multiple colons"),
         ("a<b>c=d", 4, "mixed special chars from pattern"),
-
         # Edge cases with these specific chars
         ("_start_end_", 2, "leading/trailing underscore"),
         ("===", 0, "only special chars"),
         ("a_", 1, "trailing special char"),
-        ("_a", 1, "leading special char")
+        ("_a", 1, "leading special char"),
     ]
 
     for input_text, expected_count, description in test_cases:
         result = get_ia_writer_style_wordcount_from_string(input_text)
-        assert result == expected_count, \
-            f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
+        assert (
+            result == expected_count
+        ), f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
 
 
 def test_wordchar_slash_splitting():
@@ -87,13 +87,14 @@ def test_wordchar_slash_splitting():
         ("a/b", 2, "single letters"),
         ("word/2", 2, "word and number"),
         ("2/word", 2, "number and word"),
-        ("snake_case/word", 3, "interaction with previous pattern")
+        ("snake_case/word", 3, "interaction with previous pattern"),
     ]
 
     for input_text, expected_count, description in test_cases:
         result = get_ia_writer_style_wordcount_from_string(input_text)
-        assert result == expected_count, \
-            f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
+        assert (
+            result == expected_count
+        ), f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
 
 
 def test_decimal_joining():
@@ -106,13 +107,14 @@ def test_decimal_joining():
         ("a.1", 2, "letter dot number"),
         ("version 2.0", 2, "decimal in sentence"),
         ("1.11.23", 1, "version number"),
-        ("123.456.789", 1, "multiple decimal sections")
+        ("123.456.789", 1, "multiple decimal sections"),
     ]
 
     for input_text, expected_count, description in test_cases:
         result = get_ia_writer_style_wordcount_from_string(input_text)
-        assert result == expected_count, \
-            f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
+        assert (
+            result == expected_count
+        ), f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
 
 
 def test_emdash_splitting():
@@ -122,10 +124,11 @@ def test_emdash_splitting():
         ("multiple—word—split", 3, "multiple em dashes"),
         ("1—2", 2, "numbers with em dash"),
         ("no—split—here—either", 4, "longer em dash split"),
-        ("pre — post", 2, "em dash with spaces already")
+        ("pre — post", 2, "em dash with spaces already"),
     ]
 
     for input_text, expected_count, description in test_cases:
         result = get_ia_writer_style_wordcount_from_string(input_text)
-        assert result == expected_count, \
-            f"{description}: Expected {expected_count} words for '{input_text}', got {result}"
+        assert (
+            result == expected_count
+        ), f"{description}: Expected {expected_count} words for '{input_text}', got {result}"

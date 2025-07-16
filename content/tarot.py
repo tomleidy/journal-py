@@ -1,4 +1,5 @@
 """Tarot content functions"""
+
 import random
 import csv
 from config.settings import TAROT_CSV, TAROT_SKIP_COLUMNS, TAROT_COLUMN_MAX_LEN
@@ -6,7 +7,7 @@ from config.settings import TAROT_CSV, TAROT_SKIP_COLUMNS, TAROT_COLUMN_MAX_LEN
 
 def pull_tarot_card() -> str:
     """Pull a tarot card from the tarot.csv file"""
-    with open(TAROT_CSV, 'r', encoding='utf-8') as f:
+    with open(TAROT_CSV, "r", encoding="utf-8") as f:
         reader = list(csv.DictReader(f))
         card = random.choice(reader)
 
