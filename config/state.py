@@ -22,6 +22,7 @@ class JournalState:
     path: str
     entry_file_path: str
     editor_subprocess: List[str]
+    editor_8_weeks_ago_subprocess: List[str]
 
     @classmethod
     def initialize(cls, args: Dict[str, Any]) -> "JournalState":
@@ -69,8 +70,11 @@ class JournalState:
 
         # Calculate entry path and editor command
         entry_file_path = f"{journal_path}/{title_now}.txt"
+        entry_8_weeks_ago_path = f"{journal_path}/{title_now_8_weeks_ago}.txt"
         editor_subprocess = platform_settings["editor_subprocess"] + [entry_file_path]
-
+        editor_8_weeks_ago_subprocess = platform_settings["editor_subprocess"] + [
+            entry_8_weeks_ago_path
+        ]
         return JournalState(
             args=args,
             current_hour=current_hour,
@@ -84,6 +88,7 @@ class JournalState:
             path=journal_path,
             entry_file_path=entry_file_path,
             editor_subprocess=editor_subprocess,
+            editor_8_weeks_ago_subprocess=editor_8_weeks_ago_subprocess,
         )
 
 

@@ -68,6 +68,12 @@ def parse_arguments():
         action="store_true",
         help="add zodiac information to entry",
     )
+    parser.add_argument(
+        "-N",
+        "--no-review",
+        default=False,
+        help="skip review of entry from 8 weeks ago (even if it exists)",
+    )
 
     args = vars(parser.parse_args())
 
@@ -102,10 +108,13 @@ def main():
             )
     else:
         initial_content = create_morning_content()
+        if not state.args["no_review"]:
+            open_editor(state.editor_8_weeks_ago_subprocess)
         create_entry(initial_content)
 
-    if not state.args["test"]:
-        open_editor(state.editor_subprocess)
+    if state.args["test"]:
+        return
+    open_editor(state.editor_subprocess)
 
 
 if __name__ == "__main__":
